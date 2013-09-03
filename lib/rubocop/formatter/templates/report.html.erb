@@ -1,0 +1,5 @@
+<div><%= @summary %></div>
+<% @file_reports.each do |file, offences| %>
+  <div> -------- <%= file %> ---------- </div>
+  <%= offences.join("<br/>") %>
+<% end %>
