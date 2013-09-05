@@ -20,6 +20,19 @@ module Rubocop
         output.puts(@template.result(binding))
       end
 
+      def report_file(file, offences)
+        super
+      end
+
+      def hash_for_location(offence)
+        super.merge(
+          { 
+            source_line: offence.location.source_line, 
+            column_pointer: ' ' * offence.location.column + '^' * offence.location.column_range.count 
+          }
+        )
+      end
+
       def offence_file_path(path, line)
         "#{SCM_BASE_URL}/#{path}#L#{line}"
       end
