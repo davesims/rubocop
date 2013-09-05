@@ -1,57 +1,36 @@
 # encoding: utf-8
 require 'erb'
+require 'action_view'
 
 module Rubocop
   module Formatter
-    # A basic formatter that displays only files with offences.
-    # Offences are displayed at compact form - just the
-    # location of the problem and the associated message.
-    class HTMLFormatter < BaseFormatter
-      def started(target_files)
-        @total_offence_count = 0
-        @file_reports = {}
-      end
+    class HTMLFormatter < JSONFormatter
 
-      def file_finished(file, offences)
-        return if offences.empty?
-        @total_offence_count += offences.count
-        report_file(file, offences)
+      TEMPLATE_PATH = "#{File.dirname(__FILE__)}/templates/report.html.erb"
+      SCM_BASE_URL = "http://code.livingsocial.net/dev/babysoft/tree/master"
+
+      def initialize(output)
+        super
+        @template = ERB.new(File.new(TEMPLATE_PATH).read)
+        @app_name = 'Babysoft'
       end
 
       def finished(inspected_files)
-        report_summary(inspected_files.count, @total_offence_count)
+        output_hash[:summary][:inspected_file_count] = inspected_files.count
+        output.puts(@template.result(binding))
       end
 
-      def report_file(file, offences)
-        @file_reports[smart_path(file)] = offences
+      def offence_file_path(path, line)
+        "#{SCM_BASE_URL}/#{path}#L#{line}"
       end
 
-      def report_summary(file_count, offence_count)
-        @summary = ''
-
-        plural = file_count == 0 || file_count > 1 ? 's' : ''
-        @summary << "#{file_count} file#{plural} inspected, "
-
-        offences_string = case offence_count
-                          when 0 then 'no offences'
-                          when 1 then '1 offence'
-                          else "#{offence_count} offences"
-                          end
-        @summary << "#{offences_string} detected"
-
-        output.puts ERB.new(File.new("#{File.dirname(__FILE__)}/templates/report.html.erb").read).result(binding)
-
-      end
-
-      protected
-
-      def smart_path(path)
-        if path.start_with?(Dir.pwd)
-          Pathname.new(path).relative_path_from(Pathname.getwd).to_s
-        else
-          path
-        end
+      def file_summary(file)
+        offences = file[:offences]
+        offence_count = offences.size
+        severity_counts = offences.group_by{|off| off[:severity]}.map{|k,v| "#{k}: #{v.size}"}.join(', ')
+        "#{file[:path]}  <span class='filepath-totals'>Total offences: #{offence_count} | #{severity_counts}</span>"
       end
     end
+
   end
 end
