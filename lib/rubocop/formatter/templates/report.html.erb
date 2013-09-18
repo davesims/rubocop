@@ -153,11 +153,14 @@
 </div>
 
 <script>
-  var files = document.getElementById('files').getElementsByTagName('li') 
-  for(var row in files){
-       if(typeof files[row] == 'object' && files[row].getElementsByTagName('ul').length > 0){
-           files[row].getElementsByTagName('ul')[0].className = 'selected';
-       }
+  var offences = document.getElementsByClassName('.offence-list')
+
+  for(var files in offences){
+    for(var row in files.getElementsByTagName('li')){
+      if(typeof files[row] == 'object' && files[row].getElementsByTagName('ul').length > 0){
+        files[row].getElementsByTagName('ul')[0].className = 'selected';
+      }
+    }
   }
 </script>
 
