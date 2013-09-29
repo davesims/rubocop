@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'erb'
 require 'action_view'
+require 'action_view/helpers'
 
 module Rubocop
   module Formatter
@@ -37,13 +38,23 @@ module Rubocop
         "#{SCM_BASE_URL}/#{path}#L#{line}"
       end
 
+      def offence_group_name(file)
+        file[:path].gsub(/\/|\./, '-')
+      end
+
       def file_summary(file)
         offences = file[:offences]
         offence_count = offences.size
         severity_counts = offences.group_by{|off| off[:severity]}.map{|k,v| "#{k}: #{v.size}"}.join(', ')
         "#{file[:path]}  <span class='filepath-totals'>Total offences: #{offence_count} | #{severity_counts}</span>"
       end
-    end
 
+      def debug(object)
+        Marshal::dump(object)
+        object = ERB::Util.html_escape(object.to_yaml).gsub(" ", "&nbsp; ").html_safe
+        "<pre class='debug_dump'>#{object}</pre>"
+      end
+
+    end
   end
 end

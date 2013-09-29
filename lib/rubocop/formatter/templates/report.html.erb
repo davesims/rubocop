@@ -121,6 +121,9 @@
     padding: 20px;
     height: 1%;
   }
+
+  .offence-list { display: none }
+
 </style>
 
 <div id="container">
@@ -131,36 +134,35 @@
   </div>
   <ul id='file-list'>
     <% @output_hash[:files].each do |file| %>
-      <li class='filepath' ><%= file_summary(file) %></li>
-        <ul class='offence-list'>
-          <% file[:offences].each do |offence| %>
-            <a href='<%= offence_file_path(file[:path], offence[:location][:line]) %>'>
-              <li class='offence <%= offence[:severity] %>'>
-                <%= offence[:severity] %>: <%= offence[:cop_name] %> - <%= offence[:message] %> <span class='summary-path'><%= file[:path] %>:<%= offence[:location][:line] %></span>
-                <div>
-                  <pre>
-                    <%= offence[:location][:source_line] %>
-                    <%= offence[:location][:column_pointer] %>
-                  </pre>
-                </div>
-              </li>
-            </a>
-          <% end %>
-       </ul>
+      <a onclick="toggleElement('<%= offence_group_name(file)%>')"><li class='filepath'><%= file_summary(file) %></li></a>
+      <ul class='offence-list' id='<%= offence_group_name(file)%>'>
+        <% file[:offences].each do |offence| %>
+          <a href='<%= offence_file_path(file[:path], offence[:location][:line]) %>'>
+            <li class='offence <%= offence[:severity] %>'>
+              <%= offence[:severity] %>: <%= offence[:cop_name] %> - <%= offence[:message] %> <span class='summary-path'><%= file[:path] %>:<%= offence[:location][:line] %></span>
+              <div>
+                <pre>
+                  <%= offence[:location][:source_line] %>
+                  <%= offence[:location][:column_pointer] %>
+                </pre>
+              </div>
+            </li>
+          </a>
+        <% end %>
+     </ul>
     <% end %>
   </ul>
   <div id="footer"/>
 </div>
-
 <script>
-  var offences = document.getElementsByClassName('.offence-list')
-
-  for(var files in offences){
-    for(var row in files.getElementsByTagName('li')){
-      if(typeof files[row] == 'object' && files[row].getElementsByTagName('ul').length > 0){
-        files[row].getElementsByTagName('ul')[0].className = 'selected';
-      }
+  function toggleElement( id ){
+    var thisElement = document.getElementById(id)
+    if( thisElement.style['display'] == 'block' ) {
+      thisElement.style.display = 'none';
     }
+    else {
+      thisElement.style.display = 'block';
+    }
+    return thisElement ;
   }
 </script>
-
