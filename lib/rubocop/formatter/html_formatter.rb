@@ -1,7 +1,5 @@
 # encoding: utf-8
 require 'erb'
-require 'action_view'
-require 'action_view/helpers'
 
 module Rubocop
   module Formatter
@@ -45,7 +43,7 @@ module Rubocop
       def file_summary(file)
         offences = file[:offences]
         offence_count = offences.size
-        severity_counts = offences.group_by{|off| off[:severity]}.map{|k,v| "#{k}: #{v.size}"}.join(', ')
+        severity_counts = offences.group_by{|offence| offence[:severity]}.map{|k,v| "#{k}: #{v.size}"}.join(', ')
         "#{file[:path]}  <span class='filepath-totals'>Total offences: #{offence_count} | #{severity_counts}</span>"
       end
 
